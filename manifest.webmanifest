@@ -1,0 +1,11 @@
+{
+  "name": "Кето-конструктор",
+  "short_name": "Кето",
+  "description": "Конструктор кето-рациона с перерасчётом КБЖУ и порций",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f1e9",
+  "theme_color": "#18251d",
+  "lang": "ru"
+}
