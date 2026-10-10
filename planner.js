@@ -1,6 +1,6 @@
 /* Bounded least-squares fit of actual ingredient weights for a complete daily menu. */
 window.fitDailyMenu=function(selected,targets){
- const goal=[targets.K,targets.P,targets.F,targets.C],weights=[3,2,2,3],vars=[];
+ const limits=[targets.K,targets.P,targets.F,targets.C],goal=limits.map(v=>v*.98),weights=[3,2,2,3],vars=[];
  selected.forEach((dish,meal)=>dish.ings.forEach(([name,a,u])=>{
   const food=foodNutrition[nutritionAliases[name]||name],base=ingredientGrams(name,a,u)/(dish.servings||1);
   const oil=/масло/i.test(name),herb=/укроп|петруш|зелень|чеснок|сок|лук|шпинат|салат/i.test(name),vegetable=food[3]>food[1]&&!oil;
@@ -22,8 +22,8 @@ window.fitDailyMenu=function(selected,targets){
   }
   if(movement<.00001)break;
  }
- // Total carbs are a hard ceiling; report any resulting shortfall honestly.
- const carbScale=sum[3]>targets.C&&sum[3]>0?Math.max(0,targets.C/sum[3]):1;
+ // Bias every target downward. Keep all four actual totals below the entered values.
+ const carbScale=Math.min(1,...sum.map((value,i)=>value>0?Math.max(0,limits[i]*.99/value):1));
  const portions=selected.map((dish,i)=>({dish,ings:vars.filter(v=>v.meal===i).map(v=>[v.name,Math.floor(v.x*carbScale*10)/10,'г'])}));
  const total={k:0,p:0,f:0,total:0,c:0,fiber:0};portions.forEach(p=>{p.n=calculateNutrition(p.ings);Object.keys(total).forEach(key=>total[key]+=p.n[key])});
  const close=Math.abs(total.k-targets.K)<=targets.K*.05&&Math.abs(total.p-targets.P)<=targets.P*.1&&Math.abs(total.f-targets.F)<=targets.F*.1&&total.total<=targets.C+1e-6;
